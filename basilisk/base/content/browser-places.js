@@ -868,12 +868,11 @@ var BookmarksEventHandler = {
    */
   onClick: function(aEvent, aView) {
     // Only handle middle-click or left-click with modifiers.
-    let modifKey;
-    if (AppConstants.platform == "macosx") {
-      modifKey = aEvent.metaKey || aEvent.shiftKey;
-    } else {
-      modifKey = aEvent.ctrlKey || aEvent.shiftKey;
-    }
+#ifdef XP_MACOSX
+      let modifKey = aEvent.metaKey || aEvent.shiftKey;
+#else
+      let modifKey = aEvent.ctrlKey || aEvent.shiftKey;
+#endif
 
     if (aEvent.button == 2 || (aEvent.button == 0 && !modifKey))
       return;

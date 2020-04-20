@@ -301,22 +301,19 @@ var FeedHandler = {
    * @return  The display name of the application represented by the file.
    */
   _getFileDisplayName(file) {
-    switch (AppConstants.platform) {
-      case "win":
-        if (file instanceof Ci.nsILocalFileWin) {
-          try {
-            return file.getVersionInfoField("FileDescription");
-          } catch (e) {}
-        }
-        break;
-      case "macosx":
-        if (file instanceof Ci.nsILocalFileMac) {
-          try {
-            return file.bundleDisplayName;
-          } catch (e) {}
-        }
-        break;
+#ifdef XP_WIN
+    if (file instanceof Ci.nsILocalFileWin) {
+      try {
+        return file.getVersionInfoField("FileDescription");
+      } catch (e) {}
     }
+#elif XP_MACOSX
+    if (file instanceof Ci.nsILocalFileMac) {
+      try {
+        return file.bundleDisplayName;
+      } catch (e) {}
+    }
+#endif
 
     return file.leafName;
   },
@@ -335,18 +332,13 @@ var FeedHandler = {
           // XXXben - we need to compare this with the running instance
           //          executable just don't know how to do that via script
           // XXXmano TBD: can probably add this to nsIShellService
-          let appName = "";
-          switch (AppConstants.platform) {
-            case "win":
-              appName = AppConstants.MOZ_APP_NAME + ".exe";
-              break;
-            case "macosx":
-              appName = AppConstants.MOZ_MACBUNDLE_NAME;
-              break;
-            default:
-              appName = AppConstants.MOZ_APP_NAME + "-bin";
-              break;
-          }
+#ifdef XP_WIN
+#expand          let appName = "__MOZ_APP_NAME__.exe";
+#elif XP_MACOSX
+#expand          let appName = "__MOZ_MACBUNDLE_NAME__";
+#else
+#expand          let appName = "__MOZ_APP_NAME__-bin";
+#endif
 
           if (fp.file.leafName != appName) {
             Services.prefs.setComplexValue(prefName, Ci.nsILocalFile, selectedApp);

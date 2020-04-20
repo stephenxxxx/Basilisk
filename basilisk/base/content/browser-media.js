@@ -193,32 +193,39 @@ const TELEMETRY_DDSTAT_SOLVED = 4;
 
 let gDecoderDoctorHandler = {
   getLabelForNotificationBox(type) {
+#ifdef XP_WIN
     if (type == "platform-decoder-not-found") {
-      if (AppConstants.platform == "win") {
-        return gNavigatorBundle.getString("decoder.noHWAcceleration.message");
-      }
-      if (AppConstants.platform == "linux") {
-        return gNavigatorBundle.getString("decoder.noCodecsLinux.message");
-      }
+      return gNavigatorBundle.getString("decoder.noHWAcceleration.message");
+    } else {
+      return "";
     }
+#else
+    if (type == "platform-decoder-not-found") {
+      return gNavigatorBundle.getString("decoder.noCodecsLinux.message");
+    }
+
+    if (type == "unsupported-libavcodec") {
+      return gNavigatorBundle.getString("decoder.unsupportedLibavcodec.message");
+    }
+
     if (type == "cannot-initialize-pulseaudio") {
       return gNavigatorBundle.getString("decoder.noPulseAudio.message");
     }
-    if (type == "unsupported-libavcodec" &&
-        AppConstants.platform == "linux") {
-      return gNavigatorBundle.getString("decoder.unsupportedLibavcodec.message");
-    }
+
     return "";
+#endif
   },
 
   getSumoForLearnHowButton(type) {
-    if (AppConstants.platform == "win") {
-      return "fix-video-audio-problems-firefox-windows";
-    }
+#ifdef XP_WIN
+    return "fix-video-audio-problems-firefox-windows";
+#else
     if (type == "cannot-initialize-pulseaudio") {
       return "fix-common-audio-and-video-issues";
     }
+
     return "";
+#endif
   },
 
   receiveMessage({target: browser, data: data}) {

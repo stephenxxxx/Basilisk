@@ -6,7 +6,6 @@
 
 // Services = object with smart getters for common XPCOM services
 Components.utils.import("resource://gre/modules/Services.jsm");
-Components.utils.import("resource://gre/modules/AppConstants.jsm");
 
 function init(aEvent)
 {
@@ -73,19 +72,19 @@ function init(aEvent)
   let releaseNotesURL = Services.prefs.getCharPref("app.releaseNotesURL");
   document.getElementById("releasenotes").setAttribute("href", releaseNotesURL);
 
-  if (AppConstants.MOZ_UPDATER) {
-    gAppUpdater = new appUpdater();
+#ifdef MOZ_UPDATER
+  gAppUpdater = new appUpdater();
 
-    let channelLabel = document.getElementById("currentChannel");
-    let currentChannelText = document.getElementById("currentChannelText");
-    channelLabel.value = UpdateUtils.UpdateChannel;
-    if (/^release($|\-)/.test(channelLabel.value))
-        currentChannelText.hidden = true;
-  }
+  let channelLabel = document.getElementById("currentChannel");
+  let currentChannelText = document.getElementById("currentChannelText");
+  channelLabel.value = UpdateUtils.UpdateChannel;
+  if (/^release($|\-)/.test(channelLabel.value))
+      currentChannelText.hidden = true;
+#endif
 
-  if (AppConstants.platform == "macosx") {
-    // it may not be sized at this point, and we need its width to calculate its position
-    window.sizeToContent();
-    window.moveTo((screen.availWidth / 2) - (window.outerWidth / 2), screen.availHeight / 5);
-  }
+#ifdef XP_MACOSX
+  // it may not be sized at this point, and we need its width to calculate its position
+  window.sizeToContent();
+  window.moveTo((screen.availWidth / 2) - (window.outerWidth / 2), screen.availHeight / 5);
+#endif
 }

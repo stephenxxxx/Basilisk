@@ -289,11 +289,11 @@ var FullScreen = {
       fullscreenCommand.removeAttribute("checked");
     }
 
-    if (AppConstants.platform == "macosx") {
-      // Make sure the menu items are adjusted.
-      document.getElementById("enterFullScreenItem").hidden = enterFS;
-      document.getElementById("exitFullScreenItem").hidden = !enterFS;
-    }
+#ifdef XP_MACOSX
+    // Make sure the menu items are adjusted.
+    document.getElementById("enterFullScreenItem").hidden = enterFS;
+    document.getElementById("exitFullScreenItem").hidden = !enterFS;
+#endif
 
     if (!this._fullScrToggler) {
       this._fullScrToggler = document.getElementById("fullscr-toggler");
@@ -305,12 +305,16 @@ var FullScreen = {
     if (enterFS) {
       gNavToolbox.setAttribute("inFullscreen", true);
       document.documentElement.setAttribute("inFullscreen", true);
+#ifdef XP_MACOSX
       if (!document.fullscreenElement && this.useLionFullScreen)
         document.documentElement.setAttribute("OSXLionFullscreen", true);
+#endif
     } else {
       gNavToolbox.removeAttribute("inFullscreen");
       document.documentElement.removeAttribute("inFullscreen");
+#ifdef XP_MACOSX
       document.documentElement.removeAttribute("OSXLionFullscreen");
+#endif
     }
 
     if (!document.fullscreenElement)
@@ -524,9 +528,11 @@ var FullScreen = {
     if (this._isPopupOpen)
       return false;
 
+#ifdef XP_MACOSX
     // On OS X Lion we don't want to hide toolbars.
     if (this.useLionFullScreen)
       return false;
+#endif
 
     // a textbox in chrome is focused (location bar anyone?): don't collapse chrome
     if (document.commandDispatcher.focusedElement &&
@@ -576,11 +582,13 @@ var FullScreen = {
       return;
     }
 
+#ifndef XP_MACOSX
     // Track whether mouse is near the toolbox
-    if (trackMouse && !this.useLionFullScreen) {
+    if (trackMouse) {
       gBrowser.mPanelContainer.addEventListener("mousemove",
                                                 this._collapseCallback, false);
     }
+#endif
 
     this._isChromeCollapsed = false;
   },
@@ -635,6 +643,7 @@ var FullScreen = {
 
     ToolbarIconColor.inferFromText();
 
+#ifdef XP_MACOSX
     // For Lion fullscreen, all fullscreen controls are hidden, don't
     // bother to touch them. If we don't stop here, the following code
     // could cause the native fullscreen button be shown unexpectedly.
@@ -642,6 +651,7 @@ var FullScreen = {
     if (this.useLionFullScreen) {
       return;
     }
+#endif
 
     var fullscreenctls = document.getElementById("window-controls");
     var navbar = document.getElementById("nav-bar");
@@ -657,11 +667,12 @@ var FullScreen = {
     fullscreenctls.hidden = !aEnterFS;
   }
 };
+#ifdef XP_MACOSX
 XPCOMUtils.defineLazyGetter(FullScreen, "useLionFullScreen", function() {
   // We'll only use OS X Lion full screen if we're
   // * on OS X
-  // * on Lion or higher (Darwin 11+)
+  // * on Lion or higher (Darwin 11+) which we ALWAYS are
   // * have fullscreenbutton="true"
-  return AppConstants.isPlatformAndVersionAtLeast("macosx", 11) &&
-         document.documentElement.getAttribute("fullscreenbutton") == "true";
+  return document.documentElement.getAttribute("fullscreenbutton") == "true";
 });
+#endif
