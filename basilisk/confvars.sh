@@ -4,14 +4,15 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 MOZ_APP_BASENAME=Basilisk
-MOZ_APP_VENDOR=Moonchild
+MOZ_APP_VENDOR=Basilisk-Dev
 MOZ_PHOENIX=1
 MOZ_AUSTRALIS=1
 MC_BASILISK=1
 MOZ_UPDATER=
 
-if test "$OS_ARCH" = "WINNT" -o \
-        "$OS_ARCH" = "Linux"; then
+if test "$MOZ_WIDGET_TOOLKIT" = "windows" -o \
+        "$MOZ_WIDGET_TOOLKIT" = "gtk2" -o \
+        "$MOZ_WIDGET_TOOLKIT" = "gtk3"; then
   MOZ_BUNDLED_FONTS=1
 fi
 
@@ -21,10 +22,19 @@ fi
 # To enable add "export BASILISK_VERSION=1" to the .mozconfig file.
 # However, this will cause a full rebuild at 00:00 UTC every day so
 # don't export the variable if you are in development or don't care.
-# When not exported we fall back the value in the version*.txt file.
+#
+# Also check if BASILISK_VERSION is equal to something other than 1.
+# If equal to something other than 1, then we set the MOZ_APP_VERSION
+# to 52.9.BASILISK_VERSION
+# When not exported at all we fall back the value in the version*.txt file.
 if test -n "$BASILISK_VERSION" ; then
-    MOZ_APP_VERSION=52.9.`date --utc '+%Y.%m.%d'`
-    MOZ_APP_VERSION_DISPLAY=`date --utc '+%Y.%m.%d'`
+    if [ "$BASILISK_VERSION" = "1" ]; then
+        MOZ_APP_VERSION=52.9.`date --utc '+%Y.%m.%d'`
+        MOZ_APP_VERSION_DISPLAY=`date --utc '+%Y.%m.%d'`
+    else
+        MOZ_APP_VERSION=52.9.$BASILISK_VERSION
+        MOZ_APP_VERSION_DISPLAY=$BASILISK_VERSION
+    fi
 else
     MOZ_APP_VERSION=`cat ${_topsrcdir}/$MOZ_BUILD_APP/config/version.txt`
     MOZ_APP_VERSION_DISPLAY=`cat ${_topsrcdir}/$MOZ_BUILD_APP/config/version_display.txt`
@@ -55,7 +65,6 @@ MOZ_DEVTOOLS=1
 MOZ_SERVICES_COMMON=1
 MOZ_SERVICES_SYNC=1
 MOZ_SERVICES_HEALTHREPORT=
-MOZ_SAFE_BROWSING=
 MOZ_GAMEPAD=1
 MOZ_AV1=1
 MOZ_SECURITY_SQLSTORE=1
@@ -64,7 +73,3 @@ if test "$OS_ARCH" = "WINNT" -o \
         "$OS_ARCH" = "Darwin"; then
   MOZ_CAN_DRAW_IN_TITLEBAR=1
 fi
-
-# Disable checking that add-ons are signed by the trusted root
-MOZ_ADDON_SIGNING=0
-MOZ_REQUIRE_SIGNING=0

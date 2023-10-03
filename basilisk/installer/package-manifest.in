@@ -50,7 +50,7 @@
 @RESPATH@/chrome/@AB_CD@@JAREXT@
 @RESPATH@/chrome/@AB_CD@.manifest
 @RESPATH@/dictionaries/*
-#if defined(XP_WIN) || defined(XP_LINUX)
+#if defined(XP_WIN) || defined(MOZ_WIDGET_GTK)
 @RESPATH@/fonts/*
 #endif
 @RESPATH@/hyphenation/*
@@ -69,6 +69,14 @@
 #endif
 #ifndef MOZ_STATIC_JS
 @BINPATH@/@DLL_PREFIX@mozjs@DLL_SUFFIX@
+#endif
+#ifdef GKMEDIAS_SHARED_LIBRARY
+@BINPATH@/@DLL_PREFIX@gkmedias@DLL_SUFFIX@
+#endif
+#ifndef MOZ_SYSTEM_HUNSPELL
+#ifndef XP_SOLARIS
+@BINPATH@/@DLL_PREFIX@hunspell@DLL_SUFFIX@
+#endif
 #endif
 #ifndef MOZ_SYSTEM_NSPR
 #ifndef MOZ_FOLD_LIBS
@@ -101,6 +109,9 @@
 #endif
 #ifdef MOZ_ICU_DATA_ARCHIVE
 @RESPATH@/@ICU_DATA_FILE@
+#endif
+#ifdef MOZ_SHARED_ICU
+@BINPATH@/@DLL_PREFIX@icu@MOZ_ICU_VERSION@@DLL_SUFFIX@
 #endif
 #ifdef MOZ_GTK3
 @BINPATH@/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
@@ -139,12 +150,6 @@
 #endif
 
 ; [Components]
-#ifdef MOZ_ARTIFACT_BUILDS
-@RESPATH@/components/prebuilt-interfaces.manifest
-@RESPATH@/components/interfaces.xpt
-@RESPATH@/browser/components/prebuilt-interfaces.manifest
-@RESPATH@/browser/components/interfaces.xpt
-#endif
 @RESPATH@/browser/components/components.manifest
 @RESPATH@/components/alerts.xpt
 #ifdef ACCESSIBILITY
@@ -204,9 +209,6 @@
 @RESPATH@/components/dom_storage.xpt
 @RESPATH@/components/dom_stylesheets.xpt
 @RESPATH@/components/dom_traversal.xpt
-#ifdef MOZ_WEBSPEECH
-@RESPATH@/components/dom_webspeechrecognition.xpt
-#endif
 @RESPATH@/components/dom_workers.xpt
 @RESPATH@/components/dom_xbl.xpt
 @RESPATH@/components/dom_xhr.xpt
@@ -227,7 +229,6 @@
 @RESPATH@/components/gfx.xpt
 @RESPATH@/components/html5.xpt
 @RESPATH@/components/htmlparser.xpt
-@RESPATH@/components/identity.xpt
 @RESPATH@/components/imglib2.xpt
 @RESPATH@/components/inspector.xpt
 @RESPATH@/components/intl.xpt
@@ -322,7 +323,6 @@
 @RESPATH@/components/xul.xpt
 @RESPATH@/components/xultmpl.xpt
 @RESPATH@/components/zipwriter.xpt
-@RESPATH@/components/telemetry.xpt
 
 ; JavaScript components
 @RESPATH@/components/ConsoleAPI.manifest
@@ -336,7 +336,7 @@
 @RESPATH@/components/WellKnownOpportunisticUtils.js
 @RESPATH@/components/WellKnownOpportunisticUtils.manifest
 #ifndef XP_MACOSX
-; OSX uses native platform impl.  Windows, Linux, and Android uses fallback JS impl.
+; OSX uses native platform impl. Windows and Linux use fallback JS impl.
 @BINPATH@/components/nsDNSServiceDiscovery.manifest
 @BINPATH@/components/nsDNSServiceDiscovery.js
 #endif
@@ -428,8 +428,6 @@
 @RESPATH@/components/PlacesCategoriesStarter.js
 @RESPATH@/components/ColorAnalyzer.js
 @RESPATH@/components/PageThumbsProtocol.js
-@RESPATH@/components/mozProtocolHandler.js
-@RESPATH@/components/mozProtocolHandler.manifest
 @RESPATH@/components/nsDefaultCLH.manifest
 @RESPATH@/components/nsDefaultCLH.js
 @RESPATH@/components/nsContentPrefService.manifest
@@ -448,8 +446,6 @@
 @RESPATH@/components/formautofill.manifest
 @RESPATH@/components/FormAutofillContentService.js
 @RESPATH@/components/FormAutofillStartup.js
-@RESPATH@/components/CSSUnprefixingService.js
-@RESPATH@/components/CSSUnprefixingService.manifest
 @RESPATH@/components/contentAreaDropListener.manifest
 @RESPATH@/components/contentAreaDropListener.js
 @RESPATH@/browser/components/BrowserProfileMigrators.manifest
@@ -480,8 +476,6 @@
 @RESPATH@/components/captivedetect.js
 @RESPATH@/components/servicesComponents.manifest
 @RESPATH@/components/cryptoComponents.manifest
-@RESPATH@/components/TelemetryStartup.js
-@RESPATH@/components/TelemetryStartup.manifest
 @RESPATH@/components/XULStore.js
 @RESPATH@/components/XULStore.manifest
 @RESPATH@/components/messageWakeupService.js
@@ -490,8 +484,6 @@
 @RESPATH@/components/SettingsManager.manifest
 @RESPATH@/components/AppsService.js
 @RESPATH@/components/AppsService.manifest
-@RESPATH@/components/recording-cmdline.js
-@RESPATH@/components/recording-cmdline.manifest
 @RESPATH@/components/htmlMenuBuilder.js
 @RESPATH@/components/htmlMenuBuilder.manifest
 
@@ -514,11 +506,6 @@
 @RESPATH@/components/PeerConnection.manifest
 #endif
 
-@RESPATH@/chrome/marionette@JAREXT@
-@RESPATH@/chrome/marionette.manifest
-@RESPATH@/components/marionette.manifest
-@RESPATH@/components/marionette.js
-
 #ifdef MOZ_WEBSPEECH
 @RESPATH@/components/dom_webspeechsynth.xpt
 #endif
@@ -539,20 +526,6 @@
 ; Modules
 @RESPATH@/browser/modules/*
 @RESPATH@/modules/*
-
-#ifdef MOZ_URL_CLASSIFIER
-; Safe Browsing
-@RESPATH@/components/nsURLClassifier.manifest
-@RESPATH@/components/nsUrlClassifierHashCompleter.js
-@RESPATH@/components/nsUrlClassifierListManager.js
-@RESPATH@/components/nsUrlClassifierLib.js
-@RESPATH@/components/url-classifier.xpt
-#endif
-
-; Private Browsing
-@RESPATH@/components/privatebrowsing.xpt
-@RESPATH@/components/PrivateBrowsing.manifest
-@RESPATH@/components/PrivateBrowsingTrackingProtectionWhitelist.js
 
 ; ANGLE GLES-on-D3D rendering library
 #ifdef MOZ_ANGLE_RENDERER
@@ -575,8 +548,6 @@
 @RESPATH@/browser/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/install.rdf
 @RESPATH@/chrome/toolkit@JAREXT@
 @RESPATH@/chrome/toolkit.manifest
-@RESPATH@/chrome/recording.manifest
-@RESPATH@/chrome/recording/*
 #ifdef MOZ_GTK
 @RESPATH@/browser/chrome/icons/default/default16.png
 @RESPATH@/browser/chrome/icons/default/default32.png
@@ -672,7 +643,7 @@
 ; meaning their .chk files are created there directly.
 ;
 #ifndef MOZ_SYSTEM_NSS
-#if defined(XP_LINUX) && !defined(ANDROID)
+#if defined(XP_LINUX)
 @BINPATH@/@DLL_PREFIX@freeblpriv3@DLL_SUFFIX@
 #elif defined(XP_SOLARIS) && defined(SPARC64)
 @BINPATH@/@DLL_PREFIX@freebl_64fpu_3@DLL_SUFFIX@
@@ -686,9 +657,6 @@
 #endif
 @BINPATH@/@DLL_PREFIX@nss3@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@nssckbi@DLL_SUFFIX@
-#ifndef NSS_DISABLE_DBM
-@BINPATH@/@DLL_PREFIX@nssdbm3@DLL_SUFFIX@
-#endif
 #ifndef MOZ_FOLD_LIBS
 @BINPATH@/@DLL_PREFIX@nssutil3@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@smime3@DLL_SUFFIX@
@@ -714,16 +682,15 @@
 @RESPATH@/components/dom_audiochannel.xpt
 
 ; Shutdown Terminator
-@RESPATH@/components/nsTerminatorTelemetry.js
 @RESPATH@/components/terminator.manifest
 
-#if defined(CLANG_CXX)
-#if defined(MOZ_ASAN) || defined(MOZ_TSAN)
-@BINPATH@/llvm-symbolizer
+#ifndef XP_MACOSX
+#if defined(MOZ_ASAN) || defined(MOZ_TSAN) || defined(MOZ_LSAN) || defined(MOZ_UBSAN)
+@BINPATH@/llvm-symbolizer@BIN_SUFFIX@
 #endif
 #endif
 
-#if defined(MOZ_ASAN) && defined(CLANG_CL)
+#if defined(MOZ_ASAN) && defined(XP_WIN)
 @BINPATH@/clang_rt.asan_dynamic-*.dll
 #endif
 

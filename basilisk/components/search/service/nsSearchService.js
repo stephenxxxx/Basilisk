@@ -1371,8 +1371,12 @@ Engine.prototype = {
           }
 
           let type = chan.contentType;
-          if (!type.startsWith("image/"))
-            type = "image/x-icon";
+          if (!type.startsWith("image/")) {
+            console.warn(
+              "Search service: Unable to set icon, content type is not an image",
+              contentType);
+            return;
+          }            
           let dataURL = "data:" + type + ";base64," +
             btoa(String.fromCharCode.apply(null, aByteArray));
 
@@ -1794,24 +1798,6 @@ Engine.prototype = {
         uri = gChromeReg.convertChromeURL(uri);
       }
 
-      if (AppConstants.platform == "android") {
-        // On Android the omni.ja file isn't at the same path as the binary
-        // used to start the process. We tweak the path here so that the code
-        // shared with Desktop will correctly identify files from the omni.ja
-        // file as coming from the [app] folder.
-        let appPath = Services.io.getProtocolHandler("resource")
-                              .QueryInterface(Ci.nsIResProtocolHandler)
-                              .getSubstitution("android");
-        if (appPath) {
-          appPath = appPath.spec;
-          let spec = uri.spec;
-          if (spec.includes(appPath)) {
-            let appURI = Services.io.newFileURI(getDir(knownDirs["app"]));
-            uri = NetUtil.newURI(spec.replace(appPath, appURI.spec));
-          }
-        }
-      }
-
       if (uri instanceof Ci.nsINestedURI) {
         prefix = "jar:";
         suffix = "!" + packageName + "/" + leafName;
@@ -1985,8 +1971,7 @@ Engine.prototype = {
   // from nsISearchEngine
   getSubmission: function(aData, aResponseType, aPurpose) {
     if (!aResponseType) {
-      aResponseType = AppConstants.platform == "android" ? this._defaultMobileResponseType :
-                                                           URLTYPE_SEARCH_HTML;
+      aResponseType = URLTYPE_SEARCH_HTML;
     }
 
     if (aResponseType == URLTYPE_SEARCH_HTML &&
@@ -2038,8 +2023,7 @@ Engine.prototype = {
   // from nsISearchEngine
   getResultDomain: function(aResponseType) {
     if (!aResponseType) {
-      aResponseType = AppConstants.platform == "android" ? this._defaultMobileResponseType :
-                                                           URLTYPE_SEARCH_HTML;
+      aResponseType = URLTYPE_SEARCH_HTML;
     }
 
     LOG("getResultDomain: responseType: \"" + aResponseType + "\"");
@@ -2054,8 +2038,7 @@ Engine.prototype = {
    * Returns URL parsing properties used by _buildParseSubmissionMap.
    */
   getURLParsingInfo: function () {
-    let responseType = AppConstants.platform == "android" ? this._defaultMobileResponseType :
-                                                            URLTYPE_SEARCH_HTML;
+    let responseType = URLTYPE_SEARCH_HTML;
 
     LOG("getURLParsingInfo: responseType: \"" + responseType + "\"");
 
@@ -2309,8 +2292,6 @@ SearchService.prototype = {
     this._initObservers.resolve(this._initRV);
 
     Services.obs.notifyObservers(null, SEARCH_SERVICE_TOPIC, "init-complete");
-    Services.telemetry.getHistogramById("SEARCH_SERVICE_INIT_SYNC").add(true);
-    this._recordEngineTelemetry();
 
     LOG("_syncInit end");
   },
@@ -2348,8 +2329,6 @@ SearchService.prototype = {
     this._cacheFileJSON = null;
     this._initObservers.resolve(this._initRV);
     Services.obs.notifyObservers(null, SEARCH_SERVICE_TOPIC, "init-complete");
-    Services.telemetry.getHistogramById("SEARCH_SERVICE_INIT_SYNC").add(false);
-    this._recordEngineTelemetry();
 
     LOG("_asyncInit: Completed _asyncInit");
   }),
@@ -2715,7 +2694,6 @@ SearchService.prototype = {
         // Typically we'll re-init as a result of a pref observer,
         // so signal to 'callers' that we're done.
         Services.obs.notifyObservers(null, SEARCH_SERVICE_TOPIC, "init-complete");
-        this._recordEngineTelemetry();
         gInitialized = true;
       } catch (err) {
         LOG("Reinit failed: " + err);
@@ -3890,25 +3868,6 @@ SearchService.prototype = {
     }
 
     return result;
-  },
-
-  _recordEngineTelemetry: function() {
-    Services.telemetry.getHistogramById("SEARCH_SERVICE_ENGINE_COUNT")
-            .add(Object.keys(this._engines).length);
-    let hasUpdates = false;
-    let hasIconUpdates = false;
-    for (let name in this._engines) {
-      let engine = this._engines[name];
-      if (engine._hasUpdates) {
-        hasUpdates = true;
-        if (engine._iconUpdateURL) {
-          hasIconUpdates = true;
-          break;
-        }
-      }
-    }
-    Services.telemetry.getHistogramById("SEARCH_SERVICE_HAS_UPDATES").add(hasUpdates);
-    Services.telemetry.getHistogramById("SEARCH_SERVICE_HAS_ICON_UPDATES").add(hasIconUpdates);
   },
 
   /**

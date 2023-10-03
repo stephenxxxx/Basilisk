@@ -17,7 +17,6 @@ XPCOMUtils.defineLazyModuleGetter(this, "DownloadUtils",
                                   "resource://gre/modules/DownloadUtils.jsm");
 
 const RESTORE_FILEPICKER_FILTER_EXT = "*.json;*.jsonlz4";
-const HISTORY_LIBRARY_SEARCH_TELEMETRY = "PLACES_HISTORY_LIBRARY_SEARCH_TIME_MS";
 
 var PlacesOrganizer = {
   _places: null,
@@ -360,7 +359,6 @@ var PlacesOrganizer = {
    * cookies, history, preferences, and bookmarks.
    */
   importFromBrowser: function() {
-    // We pass in the type of source we're using for use in telemetry:
     MigrationUtils.showMigrationWizard(window, [MigrationUtils.MIGRATION_ENTRYPOINT_PLACES]);
   },
 
@@ -409,11 +407,8 @@ var PlacesOrganizer = {
   populateRestoreMenu: function() {
     let restorePopup = document.getElementById("fileRestorePopup");
 
-    const locale = Cc["@mozilla.org/chrome/chrome-registry;1"]
-                   .getService(Ci.nsIXULChromeRegistry)
-                   .getSelectedLocale("global", true);
-    const dtOptions = { year: 'numeric', month: 'long', day: 'numeric' };
-    let dateFormatter = new Intl.DateTimeFormat(locale, dtOptions);
+    let dateSvc = Cc["@mozilla.org/intl/scriptabledateformat;1"].
+                  getService(Ci.nsIScriptableDateFormat);
 
     // Remove existing menu items.  Last item is the restoreFromFile item.
     while (restorePopup.childNodes.length > 1)
@@ -445,7 +440,13 @@ var PlacesOrganizer = {
         let backupDate = PlacesBackups.getDateForFile(backupFiles[i]);
         let m = restorePopup.insertBefore(document.createElement("menuitem"),
                                           document.getElementById("restoreFromFile"));
-        m.setAttribute("label", dateFormatter.format(backupDate) + sizeInfo);
+        m.setAttribute("label",
+                       dateSvc.FormatDate("",
+                                          Ci.nsIScriptableDateFormat.dateFormatLong,
+                                          backupDate.getFullYear(),
+                                          backupDate.getMonth() + 1,
+                                          backupDate.getDate()) +
+                                          sizeInfo);
         m.setAttribute("value", OS.Path.basename(backupFiles[i]));
         m.setAttribute("oncommand",
                        "PlacesOrganizer.onRestoreMenuItemClick(this);");

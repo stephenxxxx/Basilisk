@@ -124,8 +124,6 @@ chrome/en-US/locale/en-US/browser/overrides/dom/dom.properties
 chrome/en-US/locale/en-US/browser/overrides/global.dtd
 chrome/en-US/locale/en-US/browser/overrides/global/aboutSupport.dtd
 chrome/en-US/locale/en-US/browser/overrides/global/aboutSupport.properties
-chrome/en-US/locale/en-US/browser/overrides/global/aboutTelemetry.dtd
-chrome/en-US/locale/en-US/browser/overrides/global/aboutTelemetry.properties
 chrome/en-US/locale/en-US/browser/overrides/global/aboutWebrtc.properties
 chrome/en-US/locale/en-US/browser/overrides/global/mozilla.dtd
 chrome/en-US/locale/en-US/browser/overrides/intl.css
@@ -148,8 +146,6 @@ chrome/en-US/locale/en-US/global/aboutReader.properties
 chrome/en-US/locale/en-US/global/aboutRights.dtd
 chrome/en-US/locale/en-US/global/aboutSupport.dtd
 chrome/en-US/locale/en-US/global/aboutSupport.properties
-chrome/en-US/locale/en-US/global/aboutTelemetry.dtd
-chrome/en-US/locale/en-US/global/aboutTelemetry.properties
 chrome/en-US/locale/en-US/global/aboutWebrtc.properties
 chrome/en-US/locale/en-US/global/charsetMenu.properties
 chrome/en-US/locale/en-US/global/commonDialogs.properties
@@ -226,7 +222,4 @@ res/table-remove-column.gif
 res/table-remove-row-active.gif
 res/table-remove-row-hover.gif
 res/table-remove-row.gif
-# Aurora branding
-browser/chrome/browser/content/browser/defaultthemes/devedition.icon.png
 browser/chrome/browser/content/branding/icon64.png
-browser/chrome/devtools/content/framework/dev-edition-promo/dev-edition-logo.png

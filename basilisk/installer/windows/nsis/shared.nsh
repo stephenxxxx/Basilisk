@@ -533,7 +533,7 @@
     ${WriteRegStr2} $1 "$0" "DisplayVersion" "${AppVersion}" 0
     ${WriteRegStr2} $1 "$0" "HelpLink" "${HelpLink}" 0
     ${WriteRegStr2} $1 "$0" "InstallLocation" "$8" 0
-    ${WriteRegStr2} $1 "$0" "Publisher" "Moonchild Productions" 0
+    ${WriteRegStr2} $1 "$0" "Publisher" "Basilisk Development Team" 0
     ${WriteRegStr2} $1 "$0" "UninstallString" "$\"$8\uninstall\helper.exe$\"" 0
     DeleteRegValue SHCTX "$0" "URLInfoAbout"
 ; Don't add URLUpdateInfo which is the release notes url except for the release
@@ -1116,17 +1116,6 @@
       System::Call 'advapi32::CloseServiceHandle(i R7) n'
       ; Open the service with SERVICE_QUERY_CONFIG so its status can be queried.
       System::Call 'advapi32::OpenServiceW(i R6, t "MpsSvc", i ${SERVICE_QUERY_STATUS}) i.R7'
-    ${Else}
-      ; SharedAccess is the Firewall service on Windows XP.
-      ; When opening the service with SERVICE_QUERY_CONFIG the return value will
-      ; be 0 if the service is not installed.
-      System::Call 'advapi32::OpenServiceW(i R6, t "SharedAccess", i ${SERVICE_QUERY_CONFIG}) i.R7'
-      ${If} $R7 != 0
-        System::Call 'advapi32::CloseServiceHandle(i R7) n'
-        ; Open the service with SERVICE_QUERY_CONFIG so its status can be
-        ; queried.
-        System::Call 'advapi32::OpenServiceW(i R6, t "SharedAccess", i ${SERVICE_QUERY_STATUS}) i.R7'
-      ${EndIf}
     ${EndIf}
     ; Did the calls to OpenServiceW succeed?
     ${If} $R7 != 0
