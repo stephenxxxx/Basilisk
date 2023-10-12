@@ -1,5 +1,5 @@
 # Basilisk web browser
-
+ 
 This is the source code for the Basilisk web browser, an independent browser
 derived from Firefox/Mozilla community code. The source tree is laid out in a
 "comm-central" style configuration where only the code specific to Basilisk is
